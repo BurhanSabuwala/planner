@@ -15,17 +15,7 @@ How to run it?
 python3 planner.py
 ```
 
+## License
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.  
+You can view the full license at [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
-```{python}
-"""
-Personal Planner Application
-Author: Burhan Sabuwala
-Date: Jan 24, 2025
-
-This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License.
-You are free to share and adapt this code for non-commercial purposes, provided that you give appropriate credit 
-and indicate if changes were made. For more details, visit: 
-
-https://creativecommons.org/licenses/by-nc/4.0/
-"""
-```
