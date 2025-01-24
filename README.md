@@ -1,6 +1,6 @@
 # Planner
 
-This application is a personal planner. 
+A minimalist personal planner
 
 Features: 
 
