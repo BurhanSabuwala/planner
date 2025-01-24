@@ -16,7 +16,8 @@ python3 planner.py
 ```
 
 
-"""{python}
+```{python}
+"""
 Personal Planner Application
 Author: Burhan Sabuwala
 Date: Jan 24, 2025
@@ -27,3 +28,4 @@ and indicate if changes were made. For more details, visit:
 
 https://creativecommons.org/licenses/by-nc/4.0/
 """
+```
