@@ -1,3 +1,16 @@
+"""
+Personal Planner Application
+Author: Burhan Sabuwala
+Date: Jan 24, 2025
+
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License.
+You are free to share and adapt this code for non-commercial purposes, provided that you give appropriate credit 
+and indicate if changes were made. For more details, visit: 
+
+https://creativecommons.org/licenses/by-nc/4.0/
+"""
+
+
 import tkinter as tk
 from ttkthemes import ThemedTk
 from tkinter import ttk, simpledialog, messagebox, filedialog
