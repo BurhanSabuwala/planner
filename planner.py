@@ -10,7 +10,6 @@ and indicate if changes were made. For more details, visit:
 https://creativecommons.org/licenses/by-nc/4.0/
 """
 
-
 import tkinter as tk
 from ttkthemes import ThemedTk
 from tkinter import ttk, simpledialog, messagebox, filedialog
@@ -20,6 +19,8 @@ import calendar
 import json
 import os
 import re
+import csv
+
 
 # Function to add task to todo list
 def add_task(event=None):
@@ -29,13 +30,15 @@ def add_task(event=None):
         task_frame = tk.Frame(todo_frame, bg = univ_bg)
         task_frame.pack(anchor="w", pady = 2, fill ="x")
 
-        task_checkbox = tk.Checkbutton(task_frame, text=task_text, variable=tk.IntVar(), 
-                                       font=("Helvetica", 20), command=lambda: toggle_task(task_var, task_checkbox))
+        completed_var = tk.IntVar(value = 0)
+        task_checkbox = tk.Checkbutton(task_frame, text=task_text, 
+                                        variable=completed_var, font=("Helvetica", 20), 
+                                       command=lambda: toggle_task(task_var, completed_var, task_checkbox))
         task_checkbox.configure(bg = univ_bg)
         task_checkbox.pack(anchor='w', pady=2)
         #task_checkbox.pack(side = "left", padx = 5, fill = "x", expand = True)
         task_checkbox.bind("<Button-3>", lambda e: show_remove_menu(e,task_frame, task_var))
-        todo_tasks.append((task_var, task_frame))
+        todo_tasks.append((task_var, task_frame, completed_var))
         todo_entry.delete(0, tk.END)
 
 def show_remove_menu(event, task_frame, task_var):
@@ -58,58 +61,67 @@ def remove_task(task_frame, task_var):
 
 
 # Function to toggle task completion (strike-through effect)
-def toggle_task(task_var, checkbox):
-    if checkbox.var.get():
+def toggle_task(task_var, completed_var, checkbox,):
+    if completed_var.get():
         checkbox.config(fg="lightgray", font=("Helvetica", 20, "overstrike"))
-        task_var.set(f"✔ {task_var.get()}")
+        #task_var.set(f"{task_var.get()}")
     else:
         checkbox.config(fg="black", font=("Helvetica", 20, "normal"))
-        task_var.set(task_var.get().replace("✔ ", ""))
+        #task_var.set(task_var.get().replace("✔ ", ""))
 
 
-# Function to save current To-Do list and schedule
+# Function to save the To-Do list in a CSV file
 def save_data():
-    data = {
-        "todo_list": [{"task": task[0], "completed": task[1].var.get()} for task in todo_tasks],
-        "schedule": [{"title": event["title"], "start": event["start"], "end": event["end"], "color": event["color"]} for event in scheduled_events]
-    }
-
-    file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+    file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
     if file_path:
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        messagebox.showinfo("Success", f"Data saved to {file_path}")
+        with open(file_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            # Write header
+            writer.writerow(["Completed", "Task"])
+            # Write each task with completion status
+            for task_var, task_frame, completed_var in todo_tasks:
+                completed = "Yes" if completed_var.get() == 1 else "No"
+                task_name = task_var.get().replace("✔ ", "")
+                writer.writerow([completed, task_var.get()])
 
-# Function to load previously saved To-Do list and schedule
+        messagebox.showinfo("Success", f"To-Do List saved to {file_path}")
+
+# Function to load the To-Do list from a CSV file
 def load_data():
-    file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+    file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     if file_path:
         with open(file_path, 'r') as file:
-            data = json.load(file)
-        
-        # Clear existing tasks
-        for task in todo_tasks:
-            task[1].destroy()
-        todo_tasks.clear()
+            reader = csv.reader(file)
+            next(reader)  # Skip header row
+            
+            # Clear existing tasks
+            for task in todo_tasks:
+                task[1].destroy()
+            todo_tasks.clear()
 
-        # Load To-Do List
-        for task in data["todo_list"]:
-            task_var = tk.StringVar(value=task["task"])
-            task_checkbox = tk.Checkbutton(todo_frame, text=task["task"], variable=tk.IntVar(value=task["completed"]),
-                                           font=("Helvetica", 20), command=lambda: toggle_task(task_var, task_checkbox))
-            task_checkbox.pack(anchor='w', pady=2)
-            todo_tasks.append((task["task"], task_checkbox))
+            # Load tasks from CSV file
+            for row in reader:
+                completed = row[0].strip().lower() == "yes"
+                task_text = row[1].strip()
+                
+                task_var = tk.StringVar(value=task_text)
+                task_frame = tk.Frame(todo_frame, bg=univ_bg)
+                task_frame.pack(anchor="w", pady=2, fill="x")
 
-        # Clear existing schedule
-        for event in scheduled_events:
-            event["widget"].destroy()
-        scheduled_events.clear()
+                completed_var = tk.IntVar(value=1 if completed else 0)
 
-        # Load Schedule
-        for event in data["schedule"]:
-            create_event(event["title"], event["start"], event["end"], event["color"])
+                task_checkbox = tk.Checkbutton(task_frame, text=task_text, variable=completed_var,
+                                               font=("Helvetica", 20))
+                task_checkbox.configure(bg=univ_bg)
+                task_checkbox.pack(anchor='w', pady=2)
 
-        messagebox.showinfo("Success", "Data loaded successfully!")
+                task_checkbox.config(command=lambda t=task_var, c=completed_var, ch=task_checkbox: toggle_task(t,c,ch))
+
+                task_checkbox.bind("<Button-3>", lambda e, tf=task_frame, tv=task_var: show_remove_menu(e, tf, tv))
+
+                todo_tasks.append((task_var, task_frame, completed_var))
+
+        messagebox.showinfo("Success", "To-Do List loaded successfully!")
 
 # Function to add event using dropdown selections for hours and minutes
 def add_event():
