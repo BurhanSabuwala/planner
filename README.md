@@ -1,6 +1,6 @@
 # Planner
 
-A minimalist personal planner
+A day planner for my personal use
 
 Features: 
 
