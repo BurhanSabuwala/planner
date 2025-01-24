@@ -16,7 +16,7 @@ python3 planner.py
 ```
 
 
-"""
+"""{python}
 Personal Planner Application
 Author: Burhan Sabuwala
 Date: Jan 24, 2025
